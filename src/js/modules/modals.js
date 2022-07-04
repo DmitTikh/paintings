@@ -1,9 +1,11 @@
 const modal = () => {
-    const showModal = (btnSelector, modalSelector, closeSelector, closeClickOverlay = true) => {
+    let btnPressed = false;
+    const showModal = (btnSelector, modalSelector, closeSelector, destroy = false) => {
         const btn = document.querySelectorAll(btnSelector),
               modal = document.querySelector(modalSelector),
               closeBtn = document.querySelector(closeSelector),
-              windows = document.querySelectorAll('[data-modal]');
+              windows = document.querySelectorAll('[data-modal]'),
+              gift = document.querySelector('.fixed-gift'),
               scroll = calcScroll();
 
         btn.forEach(item=> {
@@ -11,12 +13,22 @@ const modal = () => {
                 if(e.target) {
                     e.preventDefault();
                 }
+                
+                btnPressed = true;
+
                 windows.forEach(item=> {
                     item.style.display = 'none';
+                    item.classList.add('animated', 'fadeIn');
                 });
+
+                if (destroy) {
+                    item.remove();
+                }
+              
                 modal.style.display = 'block';
                 document.body.style.overflow = 'hidden';
                 document.body.style.marginRight = `${scroll}px`;
+                gift.style.right = `${parseInt(getComputedStyle(gift).right) + scroll}px`;
             });
         });
 
@@ -24,7 +36,7 @@ const modal = () => {
            
             if(e.target && (e.target === closeBtn || 
                e.target.parentNode === closeBtn ||
-               (closeClickOverlay && e.target == modal))) {
+               e.target == modal)) {
                 
                 windows.forEach(item=> {
                     item.style.display = 'none';
@@ -32,9 +44,12 @@ const modal = () => {
 
                 modal.style.display = 'none';
                 document.body.style.overflow = '';
-                document.body.style.marginRight = `0px`; 
+                document.body.style.marginRight = `0px`;
+                gift.style.right = `2rem`;
             } 
         });
+
+        
         function calcScroll () {
             let div = document.createElement('div');
             div.style.width = '50px';
@@ -57,15 +72,28 @@ const modal = () => {
             });
             if(!display) {
                 document.querySelector(selector).style.display = 'block';
-                document.body.style.overflow = 'hidden'; 
+                document.body.style.overflow = 'hidden';
+                let scroll = calcScroll();
+                document.body.style.marginRight = `${scroll}px`;
+                gift.style.right = `${parseInt(getComputedStyle(gift).right) + scroll}px`;
+                
             }
         }, 60000);
    };
     
-    
+    function openBodyScroll(selector) {
+        window.addEventListener('scroll', ()=> {
+            if(!btnPressed && (window.pageYOffset+ document.documentElement.clientHeight >= 
+                document.documentElement.scrollHeight)) {
+                document.querySelector(selector).click();
+            }
+        });
+    }
 
     showModal('.button-design', '.popup-design', '.popup-design .popup-close');
     showModal('.button-consultation', '.popup-consultation', '.popup-consultation .popup-close');
+    showModal('.fixed-gift', '.popup-gift', '.popup-gift .popup-close', true );
+    openBodyScroll('.fixed-gift');
     timer('.popup-consultation');
 };
 
