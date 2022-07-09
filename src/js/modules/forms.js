@@ -4,11 +4,20 @@ const forms = () => {
     const formPost = (selector)=> {
         const forms = document.querySelectorAll(selector),
               inputs = document.querySelectorAll('input'),
+              upload = document.querySelectorAll('[name="upload"]'),
               message = {
                     loading: 'Загрузка...',
                     success: 'Спасибо! Скоро мы с вами свяжемся',
-                    failure: 'Что-то пошло не так'
+                    failure: 'Что-то пошло не так',
+                    spinner: 'assets/img/spinner.gif',
+                    ok: 'assets/img/ok.png',
+                    fail: 'assets/img/fail.png'
               };
+            
+        const path = {
+            designer: 'assets/server.php',
+            question: 'assets/question.php'
+        };
 
         checkNumInputs('input[name="phone"]'); 
 
@@ -16,10 +25,23 @@ const forms = () => {
             inputs.forEach(i => {
                 i.value='';
             });
+            upload.forEach(i => {
+                item.previousElementSibling.textContent="";
+            });
         };
         
+        upload.forEach(item=> {
+            item.addEventListener('input', ()=> {
+                let dots;
+                const arr = item.files[0].name.split('.');
+                arr[0].length > 6 ? dots="..." : dots=".";
+                const name = arr[0].substring(0, 6)+dots + arr[1];
+                item.previousElementSibling.textContent=name;
+            });
+        });
+
         const postData = async (url, data) => {
-            document.querySelector('.status').textContent = message.loading;
+            
             let res = await fetch(url, {
                 method: 'POST',
                 body: data
@@ -33,17 +55,35 @@ const forms = () => {
 
                 let statusMessage = document.createElement('div');
                 statusMessage.classList.add('status');
-                item.appendChild(statusMessage);
-                statusMessage.textContent = message.loading;
+                item.parentNode.appendChild(statusMessage);
 
-                let formData = new FormData(item);
+                item.classList.add('animated', 'fadeOutUp');
+                setTimeout(()=> {
+                    item.style.display = 'none';
+                }, 400);
 
-                postData('./assets/server.php', formData)
+                let statusImg = document.createElement('img');
+                statusImg.setAttribute('src', message.spinner);
+                statusImg.classList.add('animated', 'fadeInUp');
+                statusMessage.appendChild(statusImg);
+
+                let textMessage= document.createElement('div');
+                textMessage.textContent = message.loading;
+                statusMessage.appendChild(textMessage);
+
+                const formData = new FormData(item);
+                let api;
+                item.closest('.popup-design') || item.classList.contains('form-calc') ? api = path.designer : api=path.question;
+
+                postData(api, formData)
                     .then(res=> {
-                        statusMessage.textContent = message.success;
+                        
+                        statusImg.setAttribute('src', message.ok);
+                        textMessage.textContent = message.success;
                     })
                     .catch(()=> {
-                            statusMessage.textContent = message.failure;
+                        statusImg.setAttribute('src', message.fail);
+                        textMessage.textContent = message.failure;
                     })
                     .finally(()=> {
                     
@@ -51,6 +91,9 @@ const forms = () => {
 
                         setTimeout(()=> {
                             statusMessage.remove();
+                            item.style.display = 'block';
+                            item.classList.remove('fadeOutUp');
+                            item.classList.add('fadeInUp');
                         }, 5000);
                     });
             });

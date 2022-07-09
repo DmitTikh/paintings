@@ -1,11 +1,11 @@
 const modal = () => {
     let btnPressed = false;
+    const gift = document.querySelector('.fixed-gift');
     const showModal = (btnSelector, modalSelector, closeSelector, destroy = false) => {
         const btn = document.querySelectorAll(btnSelector),
               modal = document.querySelector(modalSelector),
               closeBtn = document.querySelector(closeSelector),
               windows = document.querySelectorAll('[data-modal]'),
-              gift = document.querySelector('.fixed-gift'),
               scroll = calcScroll();
 
         btn.forEach(item=> {
@@ -73,7 +73,6 @@ const modal = () => {
             if(!display) {
                 document.querySelector(selector).style.display = 'block';
                 document.body.style.overflow = 'hidden';
-                let scroll = calcScroll();
                 document.body.style.marginRight = `${scroll}px`;
                 gift.style.right = `${parseInt(getComputedStyle(gift).right) + scroll}px`;
                 
