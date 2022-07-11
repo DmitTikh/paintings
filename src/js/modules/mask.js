@@ -18,15 +18,16 @@ const mask = (selector) => {
     function createMask(event) {
         let matrix = '+7 (___) ___ __ __',
             i = 0,
-            def = matrix.replace(/\D/g, ''),
-            val = this.value.replace(/\D/g, '');
+            def = matrix.replace(/\D/g, ''), //все не цифры заменяем на пустое место
+            val = this.value.replace(/\D/g, ''); //все не цифры заменяем в value объекта события на пустое место
+  
 
-        if (def.length >= val.length) {
+        if (def.length >= val.length) {  //для того, чтобы нельзя было удалить 7 в маске
             val = def;
         }
 
         this.value = matrix.replace(/./g, function(a) {
-            return /[_\d]/.test(a) && i < val.length ? val.charAt(i++) : i >= val.length ? '' : a;
+            return /[_\d]/.test(a) && i < val.length ? val[i++] : i >= val.length ? '' : a;
         });
 
         if (event.type === 'blur') {

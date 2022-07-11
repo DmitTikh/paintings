@@ -1,4 +1,5 @@
 import checkNumInputs from "./checkNumInputs";
+import {postData} from '../services/requests';
 
 const forms = () => {
     const formPost = (selector)=> {
@@ -26,7 +27,7 @@ const forms = () => {
                 i.value='';
             });
             upload.forEach(i => {
-                item.previousElementSibling.textContent="";
+                i.previousElementSibling.textContent="";
             });
         };
         
@@ -40,14 +41,7 @@ const forms = () => {
             });
         });
 
-        const postData = async (url, data) => {
-            
-            let res = await fetch(url, {
-                method: 'POST',
-                body: data
-            })
-            return await res.text();
-        };
+        postData();
 
         forms.forEach(item => {
             item.addEventListener('submit', (e)=> {
