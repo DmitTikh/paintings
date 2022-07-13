@@ -1,6 +1,7 @@
 const modal = () => {
     let btnPressed = false;
-    const gift = document.querySelector('.fixed-gift');
+    const gift = document.querySelector('.fixed-gift'),
+          scroll = calcScroll();
     const showModal = (btnSelector, modalSelector, closeSelector, destroy = false) => {
         const btn = document.querySelectorAll(btnSelector),
               modal = document.querySelector(modalSelector),
@@ -50,18 +51,20 @@ const modal = () => {
         });
 
         
-        function calcScroll () {
-            let div = document.createElement('div');
-            div.style.width = '50px';
-            div.style.height ='50px';
-            div.style.overflowY = 'scroll';
-            div.style.visibility = 'hidden';
-            document.body.appendChild(div);
-            let scrollWidth = div.offsetWidth - div.clientWidth;
-            div.remove();
-            return scrollWidth;
-        }
     };
+    
+    function calcScroll () {
+        let div = document.createElement('div');
+        div.style.width = '50px';
+        div.style.height ='50px';
+        div.style.overflowY = 'scroll';
+        div.style.visibility = 'hidden';
+        document.body.appendChild(div);
+        let scrollWidth = div.offsetWidth - div.clientWidth;
+        div.remove();
+        return scrollWidth;
+    }
+
    function timer (selector) {
         setTimeout(()=> {
             let display;
