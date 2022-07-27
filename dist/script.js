@@ -127,29 +127,6 @@ const calc = (size, material, options, promocode, result) => {
 
 /***/ }),
 
-/***/ "./src/js/modules/checkNumInputs.js":
-/*!******************************************!*\
-  !*** ./src/js/modules/checkNumInputs.js ***!
-  \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-const checkNumInputs = selector => {
-  const numInputs = document.querySelectorAll(selector);
-  numInputs.forEach(item => {
-    item.addEventListener('input', () => {
-      item.value = item.value.replace(/\D/, '');
-    });
-  });
-};
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (checkNumInputs);
-
-/***/ }),
-
 /***/ "./src/js/modules/checkTextInputs.js":
 /*!*******************************************!*\
   !*** ./src/js/modules/checkTextInputs.js ***!
@@ -172,6 +149,78 @@ const checkTextInputs = selector => {
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (checkTextInputs);
+
+/***/ }),
+
+/***/ "./src/js/modules/drop.js":
+/*!********************************!*\
+  !*** ./src/js/modules/drop.js ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+const drop = () => {
+  // drag *
+  // dragend *
+  // dragenter - объект над dropArea
+  // dragexit *
+  // dragleave - объект за пределами dropArea
+  // dragover - объект зависает над dropArea
+  // dragstart *
+  // drop - объект отправлен в dropArea
+  const fileInputs = document.querySelectorAll('[name="upload"]');
+  ['dragenter', 'dragleave', 'dragover', 'drop'].forEach(eventName => {
+    fileInputs.forEach(input => {
+      input.addEventListener(eventName, preventDefaults, false);
+    });
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  function highlight(item) {
+    item.closest('.file_upload').style.border = "5px solid yellow";
+    item.closest('.file_upload').style.backgroundColor = "rgba(0,0,0, .7)";
+  }
+
+  function unhighlight(item) {
+    item.closest('.file_upload').style.border = "none";
+
+    if (item.closest('.calc_form')) {
+      item.closest('.file_upload').style.backgroundColor = "#fff";
+    } else {
+      item.closest('.file_upload').style.backgroundColor = "#ededed";
+    }
+  }
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    fileInputs.forEach(input => {
+      input.addEventListener(eventName, () => highlight(input), false);
+    });
+  });
+  ['dragleave', 'drop'].forEach(eventName => {
+    fileInputs.forEach(input => {
+      input.addEventListener(eventName, () => unhighlight(input), false);
+    });
+  });
+  fileInputs.forEach(input => {
+    input.addEventListener('drop', e => {
+      input.files = e.dataTransfer.files;
+      let dots;
+      const arr = input.files[0].name.split('.');
+      arr[0].length > 6 ? dots = "..." : dots = '.';
+      const name = arr[0].substring(0, 6) + dots + arr[1];
+      input.previousElementSibling.textContent = name;
+    });
+  });
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (drop);
 
 /***/ }),
 
@@ -267,90 +316,84 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _checkNumInputs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./checkNumInputs */ "./src/js/modules/checkNumInputs.js");
-/* harmony import */ var _services_requests__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../services/requests */ "./src/js/services/requests.js");
-
+/* harmony import */ var _services_requests__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../services/requests */ "./src/js/services/requests.js");
 
 
 const forms = () => {
-  const formPost = selector => {
-    const forms = document.querySelectorAll(selector),
-          inputs = document.querySelectorAll('input'),
-          upload = document.querySelectorAll('[name="upload"]'),
-          message = {
-      loading: 'Загрузка...',
-      success: 'Спасибо! Скоро мы с вами свяжемся',
-      failure: 'Что-то пошло не так',
-      spinner: 'assets/img/spinner.gif',
-      ok: 'assets/img/ok.png',
-      fail: 'assets/img/fail.png'
-    };
-    const path = {
-      designer: 'assets/server.php',
-      question: 'assets/question.php'
-    };
-    (0,_checkNumInputs__WEBPACK_IMPORTED_MODULE_0__["default"])('input[name="phone"]');
+  const form = document.querySelectorAll('form'),
+        inputs = document.querySelectorAll('input'),
+        upload = document.querySelectorAll('[name="upload"]');
+  const message = {
+    loading: 'Загрузка...',
+    success: 'Спасибо! Скоро мы с вами свяжемся',
+    failure: 'Что-то пошло не так...',
+    spinner: 'assets/img/spinner.gif',
+    ok: 'assets/img/ok.png',
+    fail: 'assets/img/fail.png'
+  };
+  const path = {
+    designer: 'assets/server.php',
+    question: 'assets/question.php'
+  };
 
-    const clearInputs = () => {
-      inputs.forEach(i => {
-        i.value = '';
-      });
-      upload.forEach(i => {
-        i.previousElementSibling.textContent = "";
-      });
-    };
-
-    upload.forEach(item => {
-      item.addEventListener('input', () => {
-        let dots;
-        const arr = item.files[0].name.split('.');
-        arr[0].length > 6 ? dots = "..." : dots = ".";
-        const name = arr[0].substring(0, 6) + dots + arr[1];
-        item.previousElementSibling.textContent = name;
-      });
+  const clearInputs = () => {
+    inputs.forEach(item => {
+      item.value = '';
     });
-    (0,_services_requests__WEBPACK_IMPORTED_MODULE_1__.postData)();
-    forms.forEach(item => {
-      item.addEventListener('submit', e => {
-        e.preventDefault();
-        let statusMessage = document.createElement('div');
-        statusMessage.classList.add('status');
-        item.parentNode.appendChild(statusMessage);
-        item.classList.add('animated', 'fadeOutUp');
-        setTimeout(() => {
-          item.style.display = 'none';
-        }, 400);
-        let statusImg = document.createElement('img');
-        statusImg.setAttribute('src', message.spinner);
-        statusImg.classList.add('animated', 'fadeInUp');
-        statusMessage.appendChild(statusImg);
-        let textMessage = document.createElement('div');
-        textMessage.textContent = message.loading;
-        statusMessage.appendChild(textMessage);
-        const formData = new FormData(item);
-        let api;
-        item.closest('.popup-design') || item.classList.contains('form-calc') ? api = path.designer : api = path.question;
-        (0,_services_requests__WEBPACK_IMPORTED_MODULE_1__.postData)(api, formData).then(res => {
-          statusImg.setAttribute('src', message.ok);
-          textMessage.textContent = message.success;
-        }).catch(() => {
-          statusImg.setAttribute('src', message.fail);
-          textMessage.textContent = message.failure;
-        }).finally(() => {
-          clearInputs();
-          setTimeout(() => {
-            statusMessage.remove();
-            item.style.display = 'block';
-            item.classList.remove('fadeOutUp');
-            item.classList.add('fadeInUp');
-          }, 5000);
-        });
-      });
+    upload.forEach(item => {
+      item.previousElementSibling.textContent = "Файл не выбран";
     });
   };
 
-  formPost('.form');
-  formPost('.popup-content>form');
+  upload.forEach(item => {
+    item.addEventListener('input', () => {
+      console.log(item.files[0]);
+      let dots;
+      const arr = item.files[0].name.split('.');
+      arr[0].length > 6 ? dots = "..." : dots = '.';
+      const name = arr[0].substring(0, 6) + dots + arr[1];
+      item.previousElementSibling.textContent = name;
+    });
+  });
+  form.forEach(item => {
+    item.addEventListener('submit', e => {
+      e.preventDefault();
+      let statusMessage = document.createElement('div');
+      statusMessage.classList.add('status');
+      item.parentNode.appendChild(statusMessage);
+      item.classList.add('animated', 'fadeOutUp');
+      setTimeout(() => {
+        item.style.display = 'none';
+      }, 400);
+      let statusImg = document.createElement('img');
+      statusImg.setAttribute('src', message.spinner);
+      statusImg.classList.add('animated', 'fadeInUp');
+      statusMessage.appendChild(statusImg);
+      let textMessage = document.createElement('div');
+      textMessage.textContent = message.loading;
+      statusMessage.appendChild(textMessage);
+      const formData = new FormData(item);
+      let api;
+      item.closest('.popup-design') || item.classList.contains('calc_form') ? api = path.designer : api = path.question;
+      console.log(api);
+      (0,_services_requests__WEBPACK_IMPORTED_MODULE_0__.postData)(api, formData).then(res => {
+        console.log(res);
+        statusImg.setAttribute('src', message.ok);
+        textMessage.textContent = message.success;
+      }).catch(() => {
+        statusImg.setAttribute('src', message.fail);
+        textMessage.textContent = message.failure;
+      }).finally(() => {
+        clearInputs();
+        setTimeout(() => {
+          statusMessage.remove();
+          item.style.display = 'block';
+          item.classList.remove('fadeOutUp');
+          item.classList.add('fadeInUp');
+        }, 5000);
+      });
+    });
+  });
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (forms);
@@ -790,7 +833,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 const postData = async (url, data) => {
   let res = await fetch(url, {
-    method: 'POST',
+    method: "POST",
     body: data
   });
   return await res.text();
@@ -885,6 +928,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_accordion__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./modules/accordion */ "./src/js/modules/accordion.js");
 /* harmony import */ var _modules_burger__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./modules/burger */ "./src/js/modules/burger.js");
 /* harmony import */ var _modules_scrolling__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./modules/scrolling */ "./src/js/modules/scrolling.js");
+/* harmony import */ var _modules_drop__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./modules/drop */ "./src/js/modules/drop.js");
+
 
 
 
@@ -914,6 +959,7 @@ window.addEventListener('DOMContentLoaded', () => {
   (0,_modules_accordion__WEBPACK_IMPORTED_MODULE_9__["default"])('.accordion-heading');
   (0,_modules_burger__WEBPACK_IMPORTED_MODULE_10__["default"])('.burger', '.burger-menu');
   (0,_modules_scrolling__WEBPACK_IMPORTED_MODULE_11__["default"])('.pageup');
+  (0,_modules_drop__WEBPACK_IMPORTED_MODULE_12__["default"])();
 });
 })();
 
